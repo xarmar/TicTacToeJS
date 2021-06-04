@@ -8,17 +8,18 @@
 
 body {
     background-color: var(--lavender);
+    margin: 0px auto 0px auto;
 }
 
 #generalContainer {
     text-align: center;
     margin: 0px auto 0px auto;
-    max-width: 100%;
+    max-width: 80%;
 }
 
 #generalContainer h1 {
     background-color: var(--seaBlue);
-    padding: 15px;
+    padding: 15px 0px 15px 0px;
 }
 
 #gameBoardContainer {
@@ -36,23 +37,32 @@ body {
     border: 3px solid var(--seaBlue);
 }
 
-.squareInsideBoard {
+.divInsideBoard {
+    font-size: 4em;
+    cursor: pointer;
     color: var(--black);
-    vertical-align: middle;
+    width: 100%;
     margin: 0px;
     text-align: center;
-    border: 1px solid var(--seaBlue);
     padding: 0px;
+    border: 1px solid var(--seaBlue);
+}
+
+#restartButton {
+    margin-top: 0.5%;
+    padding: 5px;
+    background-color: var(--cyan);
+    color: var(--black);
 }
 
 /* FOOTER */
 
 #footer {
-    display: flex;;
+    display: flex;
     margin-bottom: 0px;
     position: absolute;
     height: 5%;
-    width: 99%;
+    width: 100%;
     background-color: var(--seaBlue); 
     text-align: center;
     bottom: 0;
