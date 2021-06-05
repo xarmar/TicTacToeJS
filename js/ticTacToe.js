@@ -48,13 +48,15 @@ document.addEventListener("DOMContentLoaded", function () {
                         e.target.textContent = playerOne.symbol;
                         gameBoard[e.target.id] = playerOne.symbol;
                         playerModule.toggleTurns();
-                        gameModule.lookForWinner();
+                        gameModule.checkForWinner();
+                        gameModule.checkForDraw();
                     }
                     else if (!playerOne.ownTurn && playerTwo.ownTurn) {
                         e.target.textContent = playerTwo.symbol;
                         gameBoard[e.target.id] = playerTwo.symbol;
                         playerModule.toggleTurns();
-                        gameModule.lookForWinner();
+                        gameModule.checkForWinner();
+                        gameModule.checkForDraw();
                     }
                 }
             }
@@ -93,7 +95,7 @@ document.addEventListener("DOMContentLoaded", function () {
             [0, 4, 8],
             [2, 4, 6]
         ];
-        var lookForWinner = function () {
+        var checkForWinner = function () {
             if (!gameHasEnded) {
                 winningCombinations.forEach(function (winPossibility) {
                     var symbols = [];
@@ -112,9 +114,21 @@ document.addEventListener("DOMContentLoaded", function () {
             }
             ;
         };
+        var checkForDraw = function () {
+            var markedDivs = 0;
+            for (var i = 0; i < gameBoard.length; i++) {
+                if (gameBoard[i] !== "") {
+                    markedDivs++;
+                }
+            }
+            if (markedDivs === gameBoard.length) {
+                alert("It's a draw!");
+            }
+        };
         return {
             resetGame: resetGame,
-            lookForWinner: lookForWinner
+            checkForWinner: checkForWinner,
+            checkForDraw: checkForDraw
         };
     })();
     // Create two new players. playerOne goes first

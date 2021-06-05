@@ -54,13 +54,15 @@ const gameBoardModule = (() => {
                     e.target.textContent = playerOne.symbol;
                     gameBoard[e.target.id] = playerOne.symbol
                     playerModule.toggleTurns();
-                    gameModule.lookForWinner();
+                    gameModule.checkForWinner();
+                    gameModule.checkForDraw();
                 }
                 else if (!playerOne.ownTurn && playerTwo.ownTurn) {
                     e.target.textContent = playerTwo.symbol;
                     gameBoard[e.target.id] = playerTwo.symbol
                     playerModule.toggleTurns();
-                    gameModule.lookForWinner();
+                    gameModule.checkForWinner();
+                    gameModule.checkForDraw();
                 }
             }
         }
@@ -103,7 +105,7 @@ const gameModule = (() => {
     [2, 4, 6] 
     ];
 
-    const lookForWinner = () => {
+    const checkForWinner = () => {
         if(!gameHasEnded) {
             winningCombinations.forEach(winPossibility => {
                 let symbols:string[] = []
@@ -121,9 +123,22 @@ const gameModule = (() => {
             })};
         }
 
+    const checkForDraw = () => {
+        let markedDivs = 0
+        for (let i = 0; i < gameBoard.length; i++) {
+            if(gameBoard[i] !== "") {
+                markedDivs++
+            }
+        }
+        if (markedDivs === gameBoard.length) {
+            alert("It's a draw!");
+        }
+    }
+
     return {
         resetGame : resetGame,
-        lookForWinner: lookForWinner
+        checkForWinner: checkForWinner,
+        checkForDraw: checkForDraw
     }
 })();
 
