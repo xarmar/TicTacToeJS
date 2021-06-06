@@ -25,7 +25,7 @@ document.addEventListener("DOMContentLoaded", function () {
             return gameBoard;
         };
         // sets gameBoard with a specific symbol
-        var setGameBoard = function (index, symbol) {
+        var setSymbolForGameBoardIndex = function (index, symbol) {
             gameBoard[index] = symbol;
         };
         // populate gameBoard with 9 empty divs.
@@ -42,18 +42,19 @@ document.addEventListener("DOMContentLoaded", function () {
         // Adds player's symbol to clicked div.
         var addMark = function (e) {
             if (!gameHasEnded) {
-                var currentSquare = e.target.innerText;
-                if (currentSquare === "") {
+                var clickedSquareText = e.target.innerText;
+                var clickedSquareIndex = e.target.id;
+                if (clickedSquareText === "") {
                     if (playerOne.ownTurn && !playerTwo.ownTurn) {
                         e.target.textContent = playerOne.symbol;
-                        gameBoard[e.target.id] = playerOne.symbol;
+                        setSymbolForGameBoardIndex(clickedSquareIndex, playerOne.symbol);
                         playerModule.toggleTurns();
                         gameModule.checkForWinner();
                         gameModule.checkForDraw();
                     }
                     else if (!playerOne.ownTurn && playerTwo.ownTurn) {
                         e.target.textContent = playerTwo.symbol;
-                        gameBoard[e.target.id] = playerTwo.symbol;
+                        setSymbolForGameBoardIndex(clickedSquareIndex, playerTwo.symbol);
                         playerModule.toggleTurns();
                         gameModule.checkForWinner();
                         gameModule.checkForDraw();
@@ -65,7 +66,7 @@ document.addEventListener("DOMContentLoaded", function () {
             gameBoard: gameBoard,
             initGameBoard: initGameBoard,
             getGameBoard: getGameBoard,
-            setGameBoard: setGameBoard
+            setSymbolForGameBoardIndex: setSymbolForGameBoardIndex
         };
     })();
     // gameModule - tracks winners, draws and resets game.
@@ -77,7 +78,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 gameBoardDiv.removeChild(gameBoardDiv.firstChild);
             }
             for (var index = 0; index < gameBoard.length; index++) {
-                gameBoardModule.setGameBoard(index, "");
+                gameBoardModule.setSymbolForGameBoardIndex(index, "");
             }
             gameHasEnded = false;
             playerOne.ownTurn = true;

@@ -29,7 +29,7 @@ const gameBoardModule = (() => {
         return gameBoard
     }
     // sets gameBoard with a specific symbol
-    const setGameBoard = (index:number, symbol:string) => {
+    const setSymbolForGameBoardIndex = (index:number, symbol:string) => {
         gameBoard[index] = symbol
     }
    
@@ -48,18 +48,19 @@ const gameBoardModule = (() => {
     // Adds player's symbol to clicked div.
     const addMark = (e) => {
         if (!gameHasEnded) {
-            let currentSquare = e.target.innerText;
-            if(currentSquare === "") {
+            let clickedSquareText = e.target.innerText;
+            let clickedSquareIndex = e.target.id;
+            if(clickedSquareText === "") {
                 if(playerOne.ownTurn && !playerTwo.ownTurn) {
                     e.target.textContent = playerOne.symbol;
-                    gameBoard[e.target.id] = playerOne.symbol
+                    setSymbolForGameBoardIndex(clickedSquareIndex, playerOne.symbol);
                     playerModule.toggleTurns();
                     gameModule.checkForWinner();
                     gameModule.checkForDraw();
                 }
                 else if (!playerOne.ownTurn && playerTwo.ownTurn) {
                     e.target.textContent = playerTwo.symbol;
-                    gameBoard[e.target.id] = playerTwo.symbol
+                    setSymbolForGameBoardIndex(clickedSquareIndex, playerTwo.symbol);
                     playerModule.toggleTurns();
                     gameModule.checkForWinner();
                     gameModule.checkForDraw();
@@ -71,7 +72,7 @@ const gameBoardModule = (() => {
         gameBoard,
         initGameBoard: initGameBoard,
         getGameBoard,
-        setGameBoard
+        setSymbolForGameBoardIndex: setSymbolForGameBoardIndex
         }
 })();
 
@@ -85,7 +86,7 @@ const gameModule = (() => {
             gameBoardDiv.removeChild(gameBoardDiv.firstChild);
         }
         for (let index = 0; index < gameBoard.length; index++) {
-           gameBoardModule.setGameBoard(index, "");
+           gameBoardModule.setSymbolForGameBoardIndex(index, "");
        }
 
        gameHasEnded = false;
