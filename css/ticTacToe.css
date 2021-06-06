@@ -27,6 +27,17 @@ body {
     margin: 50px auto 10px auto;
 }
 
+/* PICK ADEVERSARY MENU */
+.chooseAdversary {
+    margin: 15px auto 15px auto;
+    width:30%;
+    padding: 10px;
+    background-color: var(--white);
+}
+.chooseAdversary:hover {
+    background-color: var(--seaBlue);
+}
+
 #gameBoard {
     margin: 0px auto 10px auto;
     width: 250px;
