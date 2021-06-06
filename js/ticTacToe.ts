@@ -1,7 +1,7 @@
 document.addEventListener("DOMContentLoaded", function () {
 
-const gameBoardDiv = document.querySelector("#gameBoard")!;
-const restartButton = document.querySelector("#restartButton")!;
+const gameBoardContainer = document.querySelector("#gameBoardContainer");
+const restartButton = document.querySelector("#restartButton");
 var gameHasEnded; 
 
 // playerModule - playerFactory, toggleTurns
@@ -33,8 +33,27 @@ const gameBoardModule = (() => {
         gameBoard[index] = symbol
     }
    
-    // populate gameBoard with 9 empty divs.
+    // inserts new div "gameBoard" and calls insertRestartButton function
+    const initGameBoardDiv = () => {
+        const gameBoardDiv = document.createElement("div");
+        gameBoardDiv.id = "gameBoard";
+        gameBoardContainer?.appendChild(gameBoardDiv);
+        insertRestartButton();
+    }
+
+    // inserts a restart button into the DOM that resets the game
+    const insertRestartButton = () => {
+        const restartButtonDiv = document.createElement("div");
+        const restartButton = document.createElement("button");
+        restartButton.id = "restartButton";
+        restartButton.innerText = "Restart"
+        restartButtonDiv.appendChild(restartButton);
+        gameBoardContainer?.appendChild(restartButtonDiv);
+        restartButton.addEventListener("click", gameModule.resetGame);
+    }
+    // populates GameBoardDiv with a grid where users mark
     const initGameBoard = () => {
+        let gameBoardDiv = document.querySelector("#gameBoard");
         for (let index in gameBoard) {
             let div = document.createElement("div");
             div.classList.add("divInsideBoard");
@@ -70,6 +89,7 @@ const gameBoardModule = (() => {
     }
     return {
         gameBoard,
+        initGameBoardDiv: initGameBoardDiv,
         initGameBoard: initGameBoard,
         getGameBoard,
         setSymbolForGameBoardIndex: setSymbolForGameBoardIndex
@@ -80,8 +100,35 @@ const gameBoardModule = (() => {
 const gameModule = (() => {
     let gameBoard = gameBoardModule.getGameBoard();
 
+    // Ask if user wants to play against AI or another player.
+    const aiOrPlayerAdversary  = () => {
+        let chooseAdversaryDiv = document.createElement("div");
+        chooseAdversaryDiv.id = "adversaryDiv";
+
+        let h3 = document.createElement("h3");
+        h3.innerText = "Pick Your Adversary"
+        // creates aiAdversary p
+        let aiAdversaryP = document.createElement("p");
+        aiAdversaryP.innerText = "AI \uD83E\uDD16";
+        aiAdversaryP.classList.add("chooseAdversary")
+        // creates playerAdversary p
+        let humanAdversaryP = document.createElement("p");
+        humanAdversaryP.innerText = "Human \u{1F468}";
+        humanAdversaryP.classList.add("chooseAdversary")
+
+        // Add elements to chooseAdversaryDiv
+        chooseAdversaryDiv.appendChild(h3);
+        chooseAdversaryDiv.appendChild(aiAdversaryP);
+        chooseAdversaryDiv.appendChild(humanAdversaryP);
+
+
+        // Append chooseAdversaryDiv to gameBoardContainer
+        gameBoardContainer?.appendChild(chooseAdversaryDiv);
+    }
+
     // resetGame: remove the child elements of gameBoard from DOM, and run initGameBoard.
     const resetGame = () => {
+        let gameBoardDiv = document.querySelector("#gameBoard");
         while (gameBoardDiv.firstChild) {
             gameBoardDiv.removeChild(gameBoardDiv.firstChild);
         }
@@ -137,19 +184,21 @@ const gameModule = (() => {
     }
 
     return {
+        aiOrPlayerAdversary: aiOrPlayerAdversary,
         resetGame : resetGame,
         checkForWinner: checkForWinner,
         checkForDraw: checkForDraw
     }
 })();
 
-
 // Create two new players. playerOne goes first
 const playerOne = playerModule.playerFactory("Alpha", 1, "X", true);
 const playerTwo = playerModule.playerFactory("Omega", 2, "O", false);
-// Starts the Game By Populating the Gameboard
-gameBoardModule.initGameBoard();
-// Listen for clicks to restart Game
-restartButton.addEventListener("click", gameModule.resetGame);
 
+
+gameModule.aiOrPlayerAdversary();
+// Starts the Game By Populating the Gameboard
+// gameBoardModule.initGameBoardDiv();
+// gameBoardModule.initGameBoard();
+// Listen for clicks to restart Game
 });
