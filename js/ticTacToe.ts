@@ -2,12 +2,14 @@ document.addEventListener("DOMContentLoaded", function () {
 
 const gameBoardContainer = document.querySelector("#gameBoardContainer");
 const restartButton = document.querySelector("#restartButton");
-var gameHasEnded: boolean; 
+var gameHasEnded: boolean;
+var playerOne;
+var playerTwo;
 
 // playerModule - playerFactory(), toggleTurns(), nameUnderFifteenChar
 const playerModule = (() => {
     const playerFactory = (name: string, number: number, symbol: string, ownTurn: boolean) => {
-        return {name, number, symbol: symbol, ownTurn};
+        return {name, number, symbol, ownTurn};
     };
     // toggles who's turn it is: Player1 or Player 2.
     const toggleTurns = () => {
@@ -144,7 +146,7 @@ const gameModule = (() => {
 
     // validates user's choice in AiorPlayerDiv.
     const chosenGameMode = (e) => {
-        gameModule.deleteAiOrPlayerDiv();
+        gameModule.deleteDiv("aiOrPlayerDiv");
         let clickedButton = e.target.innerText;
         // if user picked AI adversary
         if (clickedButton === "AI \uD83E\uDD16") {
@@ -157,10 +159,10 @@ const gameModule = (() => {
         }
     }
 
-    // Deletes aiOrPlayerDiv after user clicks one of the buttons: "AI" or "Human"
-    const deleteAiOrPlayerDiv= () => {
-        let aiOrPlayerDiv = document.querySelector("#aiOrPlayerDiv");
-        aiOrPlayerDiv?.remove();
+    // Deletes Divs
+    const deleteDiv = (divName: string) => {
+        let divToBeDeleted = document.querySelector(`#${divName}`);
+        divToBeDeleted?.remove();
     }
 
     // Populates a new Div where user can type names of players
@@ -222,17 +224,16 @@ const gameModule = (() => {
         // if its just AI
         if (playerOneName && !playerTwoName) {
             let playerOne = playerModule.playerFactory(playerOneName, 1, "X", true);
-            console.log(playerOne);
             return playerOne
         }
 
         // if against human - create both players
         if (playerOneName && playerTwoName) {
-            let playerOne = playerModule.playerFactory(playerOneName, 1, "X", true);
-            let playerTwo = playerModule.playerFactory(playerTwoName, 2, "O", false);
-            console.log(playerOne);
-            console.log(playerTwo);
-            return {playerOne, playerTwo}
+            playerOne = playerModule.playerFactory(playerOneName, 1, "X", true);
+            playerTwo = playerModule.playerFactory(playerTwoName, 2, "O", false);
+            deleteDiv("pickNamesDiv");
+            gameBoardModule.initGameBoardDiv();
+            gameBoardModule.initGameBoard();
         }
     }
 
@@ -298,19 +299,14 @@ const gameModule = (() => {
         checkForWinner: checkForWinner,
         checkForDraw: checkForDraw,
         initAiOrPlayerDiv: initAiOrPlayerDiv,
-        deleteAiOrPlayerDiv : deleteAiOrPlayerDiv,
+        deleteDiv: deleteDiv,
+        createPlayers: createPlayers,
         initPickNamesDiv: initPickNamesDiv
     }
 })();
 
-// Create two new players. playerOne goes first
-const playerOne = playerModule.playerFactory("Alpha", 1, "X", true);
-const playerTwo = playerModule.playerFactory("Omega", 2, "O", false);
-
-
 gameModule.initAiOrPlayerDiv();
 // Starts the Game By Populating the Gameboard
-// gameBoardModule.initGameBoardDiv();
 // gameBoardModule.initGameBoard();
 // Listen for clicks to restart Game
 });
