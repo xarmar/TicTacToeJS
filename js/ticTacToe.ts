@@ -2,9 +2,9 @@ document.addEventListener("DOMContentLoaded", function () {
 
 const gameBoardContainer = document.querySelector("#gameBoardContainer");
 const restartButton = document.querySelector("#restartButton");
-var gameHasEnded; 
+var gameHasEnded: boolean; 
 
-// playerModule - playerFactory, toggleTurns
+// playerModule - playerFactory(), toggleTurns(), nameUnderFifteenChar
 const playerModule = (() => {
     const playerFactory = (name: string, number: number, symbol: string, ownTurn: boolean) => {
         return {name, number, symbol: symbol, ownTurn};
@@ -14,29 +14,26 @@ const playerModule = (() => {
         playerOne.ownTurn ? playerOne.ownTurn = false : playerOne.ownTurn = true;
         playerTwo.ownTurn ? playerTwo.ownTurn = false : playerTwo.ownTurn = true;
     }
-    // asks players names and save them
-    const askPlayerNames = (e) => {
-        gameModule.deleteAdversaryDiv();
-        let clickedButton = e.target.innerText;
-        // if user picked AI adversary
-        if (clickedButton === "AI \uD83E\uDD16") {
-            gameModule.populatePickNamesDiv("AI");
-            
+
+    const nameUnderFifteenChar = (name: any) => {
+        if (!name) {
+            alert("Please fill in all inputs.");
+            return
         }
-        // if user picked human adversary
-        else {
-            gameModule.populatePickNamesDiv("Human");
-            
+        if(name.length < 15) {
+            return true
         }
+        alert("Names must be under 15 chars.");
+        return false
     }
     return {
         playerFactory: playerFactory,
         toggleTurns: toggleTurns,
-        askPlayerNames: askPlayerNames
+        nameUnderFifteenChar: nameUnderFifteenChar
     }
 })();
 
-// gameBoardModule - sets gameboard, starts game(populates DOM), adds player marks, etc.
+// gameBoardModule - getGameBoard(), setSymbolForGameBoardIndex(), initGameBoardDiv(), insertRestartButton(), initGameBoard(), addMark()
 const gameBoardModule = (() => {
     const gameBoard:string[] = ["","","","","","","","",""];
 
@@ -116,10 +113,10 @@ const gameBoardModule = (() => {
 const gameModule = (() => {
     let gameBoard = gameBoardModule.getGameBoard();
 
-    // Ask if user wants to play against AI or another human.
-    const aiOrPlayerAdversary  = () => {
-        let chooseAdversaryDiv = document.createElement("div");
-        chooseAdversaryDiv.id = "adversaryDiv";
+    // Populates a new div that asks if user wants to play against AI or another human.
+    const initAiOrPlayerDiv  = () => {
+        let aiOrPlayerDiv = document.createElement("div");
+        aiOrPlayerDiv.id = "aiOrPlayerDiv";
 
         let h3 = document.createElement("h3");
         h3.innerText = "Pick Your Adversary"
@@ -132,28 +129,42 @@ const gameModule = (() => {
         humanAdversaryP.innerText = "Human \u{1F468}";
         humanAdversaryP.classList.add("chooseAdversary")
 
-        // Add elements to chooseAdversaryDiv
-        chooseAdversaryDiv.appendChild(h3);
-        chooseAdversaryDiv.appendChild(aiAdversaryP);
-        chooseAdversaryDiv.appendChild(humanAdversaryP);
+        // Add elements to aiOrPlayerDiv
+        aiOrPlayerDiv.appendChild(h3);
+        aiOrPlayerDiv.appendChild(aiAdversaryP);
+        aiOrPlayerDiv.appendChild(humanAdversaryP);
 
-        // Append chooseAdversaryDiv to gameBoardContainer
-        gameBoardContainer?.appendChild(chooseAdversaryDiv);
+        // Append aiOrPlayerDiv to gameBoardContainer
+        gameBoardContainer?.appendChild(aiOrPlayerDiv);
 
         // Add listeners to both buttons p elements
-        aiAdversaryP.addEventListener("click", playerModule.askPlayerNames);
-        humanAdversaryP.addEventListener("click",playerModule.askPlayerNames);
+        aiAdversaryP.addEventListener("click", chosenGameMode);
+        humanAdversaryP.addEventListener("click",chosenGameMode);
     }
 
-    // Deletes adversaryDiv after user clicks one of the buttons: "AI" or "Human"
-    const deleteAdversaryDiv = () => {
-        let adversaryDiv = document.querySelector("#adversaryDiv");
-        adversaryDiv?.remove();
-
+    // validates user's choice in AiorPlayerDiv.
+    const chosenGameMode = (e) => {
+        gameModule.deleteAiOrPlayerDiv();
+        let clickedButton = e.target.innerText;
+        // if user picked AI adversary
+        if (clickedButton === "AI \uD83E\uDD16") {
+            gameModule.initPickNamesDiv("AI");
+            
+        }
+        // if user picked human adversary
+        else {
+            gameModule.initPickNamesDiv("Human");
+        }
     }
 
-    // Creates new Div where user can type names or players
-    const populatePickNamesDiv = (aiOrHuman: string) => {
+    // Deletes aiOrPlayerDiv after user clicks one of the buttons: "AI" or "Human"
+    const deleteAiOrPlayerDiv= () => {
+        let aiOrPlayerDiv = document.querySelector("#aiOrPlayerDiv");
+        aiOrPlayerDiv?.remove();
+    }
+
+    // Populates a new Div where user can type names of players
+    const initPickNamesDiv = (aiOrHuman: string) => {
         let pickNamesDiv = document.createElement("div");
         pickNamesDiv.id = "pickNamesDiv"
         // create header instruction
@@ -162,13 +173,15 @@ const gameModule = (() => {
         pickNamesDiv.appendChild(headerInstruction);
         // create player 1 input
         let playerOneName = document.createElement("input");
-        playerOneName.placeholder = "Player 1:";
+        playerOneName.placeholder = "Player 1";
+        playerOneName.id = "playerOne";
         playerOneName.classList.add("nameInputs");
         pickNamesDiv.appendChild(playerOneName);
-        // create player 2 input
+        // create player 2 input if playing against a player.
         if(aiOrHuman === "Human") {
             let playerTwoName = document.createElement("input");
-            playerTwoName.placeholder = "Player 2:";
+            playerTwoName.placeholder = "Player 2";
+            playerTwoName.id = "playerTwo"
             playerTwoName.classList.add("nameInputs");
             pickNamesDiv.appendChild(playerTwoName);
         }
@@ -176,11 +189,51 @@ const gameModule = (() => {
         let startGameButton = document.createElement("p");
         startGameButton.innerText = "Start Game";
         startGameButton.id = "startGame";
-        // startGameButton.addEventListener("click", startGame);
+        startGameButton.addEventListener("click", nameInputValidation);
         pickNamesDiv.appendChild(startGameButton);
 
         // append pickNamesDiv to gameBoardContainer
         gameBoardContainer?.appendChild(pickNamesDiv);
+    }
+
+    // Check if name inputs are filled in and under 15 char.
+    const nameInputValidation = () => {
+        let playerOneName;
+        let playerTwoName;
+        let allNameInputs = document.querySelectorAll("input");
+        allNameInputs.forEach(input => {
+            if(input.id === "playerOne") {
+                playerOneName = input.value;
+                if(!playerModule.nameUnderFifteenChar(playerOneName)) {
+                    playerOneName = undefined;
+                }
+            }
+            else {
+                playerTwoName = input.value;
+                if(!playerModule.nameUnderFifteenChar(playerTwoName)) {
+                    playerOneName = undefined;
+                }
+            }
+        });
+        createPlayers(playerOneName, playerTwoName);
+    }
+
+    const createPlayers = (playerOneName, playerTwoName) => {
+        // if its just AI
+        if (playerOneName && !playerTwoName) {
+            let playerOne = playerModule.playerFactory(playerOneName, 1, "X", true);
+            console.log(playerOne);
+            return playerOne
+        }
+
+        // if against human - create both players
+        if (playerOneName && playerTwoName) {
+            let playerOne = playerModule.playerFactory(playerOneName, 1, "X", true);
+            let playerTwo = playerModule.playerFactory(playerTwoName, 2, "O", false);
+            console.log(playerOne);
+            console.log(playerTwo);
+            return {playerOne, playerTwo}
+        }
     }
 
     // resetGame: remove the child elements of gameBoard from DOM, and run initGameBoard.
@@ -198,7 +251,7 @@ const gameModule = (() => {
        playerTwo.ownTurn = false;
        gameBoardModule.initGameBoard();
    }
-    // winner gameController
+    // Check for Win Combinations and for Draws
     let winningCombinations = [
     [0, 1, 2],
     [3, 4, 5],
@@ -241,12 +294,12 @@ const gameModule = (() => {
     }
 
     return {
-        aiOrPlayerAdversary: aiOrPlayerAdversary,
         resetGame : resetGame,
         checkForWinner: checkForWinner,
         checkForDraw: checkForDraw,
-        deleteAdversaryDiv: deleteAdversaryDiv,
-        populatePickNamesDiv: populatePickNamesDiv
+        initAiOrPlayerDiv: initAiOrPlayerDiv,
+        deleteAiOrPlayerDiv : deleteAiOrPlayerDiv,
+        initPickNamesDiv: initPickNamesDiv
     }
 })();
 
@@ -255,7 +308,7 @@ const playerOne = playerModule.playerFactory("Alpha", 1, "X", true);
 const playerTwo = playerModule.playerFactory("Omega", 2, "O", false);
 
 
-gameModule.aiOrPlayerAdversary();
+gameModule.initAiOrPlayerDiv();
 // Starts the Game By Populating the Gameboard
 // gameBoardModule.initGameBoardDiv();
 // gameBoardModule.initGameBoard();
