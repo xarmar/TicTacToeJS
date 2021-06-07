@@ -27,7 +27,7 @@ body {
     margin: 50px auto 10px auto;
 }
 
-/* PICK ADEVERSARY MENU */
+/* PICK ADVESARY MENU */
 .chooseAdversary {
     margin: 15px auto 15px auto;
     width:30%;
@@ -36,6 +36,21 @@ body {
 }
 .chooseAdversary:hover {
     background-color: var(--seaBlue);
+}
+
+/* PICK NAMES MENU */
+.nameInputs {
+    width: 40%;
+    display: flex;
+    flex-direction: row;
+    margin: 15px auto 15px auto;
+}
+
+#startGame {
+    margin: 15px auto 15px auto;
+    width: 40%;
+    background-color:var(--white);
+    padding: 10px;
 }
 
 #gameBoard {
