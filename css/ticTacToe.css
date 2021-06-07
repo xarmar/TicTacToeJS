@@ -36,6 +36,7 @@ body {
 }
 .chooseAdversary:hover {
     background-color: var(--seaBlue);
+    cursor: pointer;
 }
 
 /* PICK NAMES MENU */
@@ -52,6 +53,13 @@ body {
     background-color:var(--white);
     padding: 10px;
 }
+
+#startGame:hover {
+    background-color: var(--seaBlue);
+    cursor: pointer;
+}
+
+/* gameBoard Div */
 
 #gameBoard {
     margin: 0px auto 10px auto;
