@@ -1,5 +1,6 @@
 document.addEventListener("DOMContentLoaded", function () {
 
+const title = document.querySelector("h1");
 const gameBoardContainer = document.querySelector("#gameBoardContainer");
 var gameHasEnded: boolean;
 var playerOne;
@@ -15,6 +16,11 @@ const playerModule = (() => {
         playerOne.ownTurn ? playerOne.ownTurn = false : playerOne.ownTurn = true;
         playerTwo.ownTurn ? playerTwo.ownTurn = false : playerTwo.ownTurn = true;
     }
+    
+    // checks who's turn it is: playerOne or PlayerTwo
+    const isPlayerOneTurn = () => playerOne.ownTurn ? true : false;
+    const isPlayerTwoTurn = () => playerTwo.ownTurn ? true : false;
+    
 
     const nameUnderFifteenChar = (name: any) => {
         if (!name) {
@@ -30,6 +36,8 @@ const playerModule = (() => {
     return {
         playerFactory: playerFactory,
         toggleTurns: toggleTurns,
+        isPlayerOneTurn : isPlayerOneTurn,
+        isPlayerTwoTurn: isPlayerTwoTurn,
         nameUnderFifteenChar: nameUnderFifteenChar
     }
 })();
@@ -66,6 +74,7 @@ const gameBoardModule = (() => {
         gameBoardContainer?.appendChild(restartButtonDiv);
         restartButton.addEventListener("click", gameModule.resetGame);
     }
+
     // populates GameBoardDiv with a grid where users mark
     const initGameBoard = () => {
         let gameBoardDiv = document.querySelector("#gameBoard");
@@ -77,6 +86,7 @@ const gameBoardModule = (() => {
             div.addEventListener("click", addMark);
             gameBoardDiv.appendChild(div);
         }
+        gameModule.showTurn();
     }
 
     // Adds player's symbol to clicked div.
@@ -237,6 +247,16 @@ const gameModule = (() => {
         }
     }
 
+    const showTurn = () => {
+        title?.classList.add("turnEffect")
+        if(playerModule.isPlayerOneTurn()) {
+            title.innerText = playerOne.name + "'s Turn"
+        }
+        if(playerModule.isPlayerTwoTurn()) {
+            title.innerText = playerTwo.name + "'s Turn"
+        }
+    }
+
     // resetGame: remove the child elements of gameBoard from DOM, and run initGameBoard.
     const resetGame = () => {
         deleteDiv("gameBoard");
@@ -279,9 +299,19 @@ const gameModule = (() => {
                     gameHasEnded = true;
                 }
             })};
+        if(!gameHasEnded) {
+            gameModule.showTurn();
         }
+        }
+    
+
+    const resetTicTacToeHeader = () => {
+        title.classList.remove("turnEffect");
+        title.innerText = "Tic-Tac-Toe";
+    }
 
     const displayWinner = (playerName) => {
+        resetTicTacToeHeader();
         let displayWinner = document.createElement("p");
         displayWinner.innerText = `The Winner is: ${playerName}!`
         displayWinner.id = "displayWinner";
@@ -296,6 +326,7 @@ const gameModule = (() => {
             }
         }
         if (markedDivs === gameBoard.length) {
+            resetTicTacToeHeader();
             alert("It's a draw!");
         }
     }
@@ -307,12 +338,11 @@ const gameModule = (() => {
         initAiOrPlayerDiv: initAiOrPlayerDiv,
         deleteDiv: deleteDiv,
         createPlayers: createPlayers,
-        initPickNamesDiv: initPickNamesDiv
+        initPickNamesDiv: initPickNamesDiv,
+        showTurn: showTurn
     }
 })();
 
+// Inits the game by asking the user if he wants to play against AI or a Player.
 gameModule.initAiOrPlayerDiv();
-// Starts the Game By Populating the Gameboard
-// gameBoardModule.initGameBoard();
-// Listen for clicks to restart Game
 });
