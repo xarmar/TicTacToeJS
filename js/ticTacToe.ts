@@ -1,7 +1,6 @@
 document.addEventListener("DOMContentLoaded", function () {
 
 const gameBoardContainer = document.querySelector("#gameBoardContainer");
-const restartButton = document.querySelector("#restartButton");
 var gameHasEnded: boolean;
 var playerOne;
 var playerTwo;
@@ -59,6 +58,7 @@ const gameBoardModule = (() => {
     // inserts a restart button into the DOM that resets the game
     const insertRestartButton = () => {
         const restartButtonDiv = document.createElement("div");
+        restartButtonDiv.id = "restartButtonDiv";
         const restartButton = document.createElement("button");
         restartButton.id = "restartButton";
         restartButton.innerText = "Restart"
@@ -239,18 +239,17 @@ const gameModule = (() => {
 
     // resetGame: remove the child elements of gameBoard from DOM, and run initGameBoard.
     const resetGame = () => {
-        let gameBoardDiv = document.querySelector("#gameBoard");
-        while (gameBoardDiv.firstChild) {
-            gameBoardDiv.removeChild(gameBoardDiv.firstChild);
-        }
+        deleteDiv("gameBoard");
+        deleteDiv("displayWinner");
+        deleteDiv("restartButtonDiv");
         for (let index = 0; index < gameBoard.length; index++) {
-           gameBoardModule.setSymbolForGameBoardIndex(index, "");
-       }
-
-       gameHasEnded = false;
-       playerOne.ownTurn = true;
-       playerTwo.ownTurn = false;
-       gameBoardModule.initGameBoard();
+            gameBoardModule.setSymbolForGameBoardIndex(index, "");
+        }
+        gameHasEnded = false;
+        playerOne.ownTurn = true;
+        playerTwo.ownTurn = false;
+        gameBoardModule.initGameBoardDiv();
+        gameBoardModule.initGameBoard();
    }
     // Check for Win Combinations and for Draws
     let winningCombinations = [
@@ -272,15 +271,22 @@ const gameModule = (() => {
                     symbols.push(gameBoard[index]);
                 });
                 if(symbols.toString() === "X,X,X") {
-                    alert("The Winner is " + playerOne.name);
+                    displayWinner(playerOne.name)
                     gameHasEnded = true;
                 }
                 else if (symbols.toString() === "O,O,O") {
-                    alert("The Winner is " + playerTwo.name);
+                    displayWinner(playerTwo.name);
                     gameHasEnded = true;
                 }
             })};
         }
+
+    const displayWinner = (playerName) => {
+        let displayWinner = document.createElement("p");
+        displayWinner.innerText = `The Winner is: ${playerName}!`
+        displayWinner.id = "displayWinner";
+        gameBoardContainer?.appendChild(displayWinner);
+    }
 
     const checkForDraw = () => {
         let markedDivs = 0
