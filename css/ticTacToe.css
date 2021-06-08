@@ -19,12 +19,12 @@ body {
 
 #generalContainer h1 {
     background-color: var(--seaBlue);
-    padding: 15px 0px 15px 0px;
+    padding: 8px 0px 8px 0px;
 }
 
 #gameBoardContainer {
     max-width:80%;
-    margin: 50px auto 10px auto;
+    margin: 30px auto 10px auto;
 }
 
 /* PICK ADVESARY MENU */
@@ -57,6 +57,25 @@ body {
 #startGame:hover {
     background-color: var(--seaBlue);
     cursor: pointer;
+}
+
+/* Display Winner */
+#displayWinner {
+    animation-name: displayWinner;
+    animation-iteration-count: infinite;
+    animation-duration: 3s;
+    margin: 18px auto 18px auto;
+    max-width: 40%;
+    border: 1px transparent solid;
+}
+
+@keyframes displayWinner {
+    50% {
+        border-top: var(--seaBlue) 1px solid;
+        border-right: var(--cyan) 1px solid;
+        border-bottom: var(--seaBlue) 1px solid;
+        border-left: var(--cyan) 1px solid;
+    }
 }
 
 /* gameBoard Div */
