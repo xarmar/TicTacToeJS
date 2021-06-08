@@ -119,12 +119,28 @@ h1 {
     border: 1px solid var(--seaBlue);
 }
 
-#restartButton {
-    margin-top: 0.5%;
-    padding: 5px;
-    background-color: var(--cyan);
-    color: var(--black);
+#restartButtonDiv {
+    margin: 0px auto 0px auto;
+    justify-items: center;
+    display: grid;
+    width: 250px;
+    grid-template-columns: repeat(2, 1fr);
+    grid-template-rows: 1fr;
 }
+
+#restartButton, #fullResetButton {
+    width: 80px;
+    padding: 5px;
+    background-color: var(--seaBlue);
+    color: var(--white);
+    border: 2px solid transparent;
+}
+
+#restartButton:hover, #fullResetButton:hover {
+    border: 2px black solid;
+    cursor: pointer;
+}
+
 
 /* FOOTER */
 
