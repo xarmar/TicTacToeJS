@@ -60,7 +60,7 @@ h1 {
 }
 
 /* Display Winner */
-#displayWinner {
+#displayWinner, #displayDraw {
     animation-name: displayWinner;
     animation-iteration-count: infinite;
     animation-duration: 3s;
