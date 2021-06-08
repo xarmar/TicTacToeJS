@@ -3,6 +3,7 @@ document.addEventListener("DOMContentLoaded", function () {
 const title = document.querySelector("h1");
 const gameBoardContainer = document.querySelector("#gameBoardContainer");
 var gameHasEnded: boolean;
+var winnerFound = false;
 var playerOne;
 var playerTwo;
 
@@ -67,12 +68,20 @@ const gameBoardModule = (() => {
     const insertRestartButton = () => {
         const restartButtonDiv = document.createElement("div");
         restartButtonDiv.id = "restartButtonDiv";
-        const restartButton = document.createElement("button");
+        // create two buttons: 'normal reset' and 'full reset'
+        const restartButton = document.createElement("p");
+        const fullResetButton = document.createElement("p");
+        // give buttons ID's and innerText
         restartButton.id = "restartButton";
-        restartButton.innerText = "Restart"
+        fullResetButton.id = "fullResetButton";
+        restartButton.innerText = "Restart";
+        fullResetButton.innerText = "Full Reset";
+        // append Buttons to div
         restartButtonDiv.appendChild(restartButton);
+        restartButtonDiv.appendChild(fullResetButton);
         gameBoardContainer?.appendChild(restartButtonDiv);
         restartButton.addEventListener("click", gameModule.resetGame);
+        fullResetButton.addEventListener("click", gameModule.fullReset);
     }
 
     // populates GameBoardDiv with a grid where users mark
@@ -271,6 +280,26 @@ const gameModule = (() => {
         gameBoardModule.initGameBoardDiv();
         gameBoardModule.initGameBoard();
    }
+
+    //    fullReset: takes usero the first Menu
+    const fullReset = () => {
+        title.innerText = "Tic-Tac-Toe";
+        title.classList.remove("turnEffect");
+        deleteDiv("gameBoard");
+        deleteDiv("displayWinner");
+        deleteDiv("restartButtonDiv");
+        for (let index = 0; index < gameBoard.length; index++) {
+            gameBoardModule.setSymbolForGameBoardIndex(index, "");
+        }
+        gameHasEnded = false;
+        playerOne.ownTurn = true;
+        playerTwo.ownTurn = false;
+        gameModule.initAiOrPlayerDiv();
+    }
+
+
+
+
     // Check for Win Combinations and for Draws
     let winningCombinations = [
     [0, 1, 2],
@@ -292,10 +321,12 @@ const gameModule = (() => {
                 });
                 if(symbols.toString() === "X,X,X") {
                     displayWinner(playerOne.name)
+                    winnerFound = true;
                     gameHasEnded = true;
                 }
                 else if (symbols.toString() === "O,O,O") {
                     displayWinner(playerTwo.name);
+                    winnerFound = true;
                     gameHasEnded = true;
                 }
             })};
@@ -325,7 +356,7 @@ const gameModule = (() => {
                 markedDivs++
             }
         }
-        if (markedDivs === gameBoard.length) {
+        if (markedDivs === gameBoard.length && !winnerFound) {
             resetTicTacToeHeader();
             alert("It's a draw!");
         }
@@ -333,6 +364,7 @@ const gameModule = (() => {
 
     return {
         resetGame : resetGame,
+        fullReset: fullReset,
         checkForWinner: checkForWinner,
         checkForDraw: checkForDraw,
         initAiOrPlayerDiv: initAiOrPlayerDiv,
