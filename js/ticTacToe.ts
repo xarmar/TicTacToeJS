@@ -3,6 +3,8 @@ document.addEventListener("DOMContentLoaded", function () {
 const title = document.querySelector("h1");
 const gameBoardContainer = document.querySelector("#gameBoardContainer");
 const footer = document.querySelector("#footer");
+
+// init variables
 var gameHasEnded: boolean;
 var winnerFound = false;
 var playerOne;
@@ -23,7 +25,7 @@ const playerModule = (() => {
     const isPlayerOneTurn = () => playerOne.ownTurn ? true : false;
     const isPlayerTwoTurn = () => playerTwo.ownTurn ? true : false;
     
-
+    // checks if names typed are under 15 characters and not empty
     const nameUnderFifteenChar = (name: any) => {
         if (!name) {
             alert("Please fill in all inputs.");
@@ -81,11 +83,12 @@ const gameBoardModule = (() => {
         restartButtonDiv.appendChild(restartButton);
         restartButtonDiv.appendChild(fullResetButton);
         gameBoardContainer?.appendChild(restartButtonDiv);
+        // add click listeners for buttons
         restartButton.addEventListener("click", gameModule.resetGame);
         fullResetButton.addEventListener("click", gameModule.fullReset);
     }
 
-    // populates GameBoardDiv with a grid where users mark
+    // populates GameBoardDiv with a grid where users can mark their symbol
     const initGameBoard = () => {
         let gameBoardDiv = document.querySelector("#gameBoard");
         for (let index in gameBoard) {
@@ -93,6 +96,7 @@ const gameBoardModule = (() => {
             div.classList.add("divInsideBoard");
             div.textContent = "";
             div.id = index;
+            // add listener to each 'square' div
             div.addEventListener("click", addMark);
             gameBoardDiv.appendChild(div);
         }
@@ -110,14 +114,12 @@ const gameBoardModule = (() => {
                     setSymbolForGameBoardIndex(clickedSquareIndex, playerOne.symbol);
                     playerModule.toggleTurns();
                     gameModule.checkForWinner();
-                    gameModule.checkForDraw();
                 }
                 else if (!playerOne.ownTurn && playerTwo.ownTurn) {
                     e.target.textContent = playerTwo.symbol;
                     setSymbolForGameBoardIndex(clickedSquareIndex, playerTwo.symbol);
                     playerModule.toggleTurns();
                     gameModule.checkForWinner();
-                    gameModule.checkForDraw();
                 }
             }
         }
@@ -139,14 +141,14 @@ const gameModule = (() => {
     const initAiOrPlayerDiv  = () => {
         let aiOrPlayerDiv = document.createElement("div");
         aiOrPlayerDiv.id = "aiOrPlayerDiv";
-
+        //  gives instructions to user
         let h3 = document.createElement("h3");
         h3.innerText = "Pick Your Adversary"
-        // creates aiAdversary p
+        // creates aiAdversary 'button'
         let aiAdversaryP = document.createElement("p");
         aiAdversaryP.innerText = "AI \uD83E\uDD16";
         aiAdversaryP.classList.add("chooseAdversary")
-        // creates humanAdversary p
+        // creates humanAdversary 'button'
         let humanAdversaryP = document.createElement("p");
         humanAdversaryP.innerText = "Human \u{1F468}";
         humanAdversaryP.classList.add("chooseAdversary")
@@ -159,7 +161,7 @@ const gameModule = (() => {
         // Append aiOrPlayerDiv to gameBoardContainer
         gameBoardContainer?.appendChild(aiOrPlayerDiv);
 
-        // Add listeners to both buttons p elements
+        // Add listeners to both 'buttons'
         aiAdversaryP.addEventListener("click", chosenGameMode);
         humanAdversaryP.addEventListener("click",chosenGameMode);
     }
@@ -240,11 +242,11 @@ const gameModule = (() => {
         createPlayers(playerOneName, playerTwoName);
     }
 
+    // creates players by with the playerFactory in playerModule
     const createPlayers = (playerOneName, playerTwoName) => {
         // if its just AI
         if (playerOneName && !playerTwoName) {
             let playerOne = playerModule.playerFactory(playerOneName, 1, "X", true);
-            return playerOne
         }
 
         // if against human - create both players
@@ -257,6 +259,7 @@ const gameModule = (() => {
         }
     }
 
+    // displays who's turn it is on the screen
     const showTurn = () => {
         title?.classList.add("turnEffect")
         if(playerModule.isPlayerOneTurn()) {
@@ -267,10 +270,16 @@ const gameModule = (() => {
         }
     }
 
-    // resetGame: remove the child elements of gameBoard from DOM, and run initGameBoard.
+    // turns footer visible and invisible
+    const toggleFooterOpacity = () => {
+        footer?.classList.toggle("opacity");
+    }
+
+    // resetGame: remove the child elements of gameBoardContainer from DOM, reset gameBoard and run initGameBoard.
     const resetGame = () => {
         deleteDiv("gameBoard");
         deleteDiv("displayWinner");
+        deleteDiv("displayDraw");
         deleteDiv("restartButtonDiv");
         for (let index = 0; index < gameBoard.length; index++) {
             gameBoardModule.setSymbolForGameBoardIndex(index, "");
@@ -289,6 +298,7 @@ const gameModule = (() => {
         title.classList.remove("turnEffect");
         deleteDiv("gameBoard");
         deleteDiv("displayWinner");
+        deleteDiv("displayDraw");
         deleteDiv("restartButtonDiv");
         for (let index = 0; index < gameBoard.length; index++) {
             gameBoardModule.setSymbolForGameBoardIndex(index, "");
@@ -300,10 +310,6 @@ const gameModule = (() => {
         gameModule.initAiOrPlayerDiv();
     }
 
-
-
-
-    // Check for Win Combinations and for Draws
     let winningCombinations = [
     [0, 1, 2],
     [3, 4, 5],
@@ -315,6 +321,7 @@ const gameModule = (() => {
     [2, 4, 6] 
     ];
 
+    // Check for Winner
     const checkForWinner = () => {
         if(!gameHasEnded) {
             winningCombinations.forEach(winPossibility => {
@@ -323,13 +330,11 @@ const gameModule = (() => {
                     symbols.push(gameBoard[index]);
                 });
                 if(symbols.toString() === "X,X,X") {
-                    toggleFooterOpacity();
                     displayWinner(playerOne.name)
                     winnerFound = true;
                     gameHasEnded = true;
                 }
                 else if (symbols.toString() === "O,O,O") {
-                    toggleFooterOpacity();
                     displayWinner(playerTwo.name);
                     winnerFound = true;
                     gameHasEnded = true;
@@ -337,18 +342,13 @@ const gameModule = (() => {
             })};
         if(!gameHasEnded) {
             gameModule.showTurn();
+            gameModule.checkForDraw();
         }
         }
-    const toggleFooterOpacity = () => {
-        footer?.classList.toggle("opacity");
-    }
-
-    const resetTicTacToeHeader = () => {
-        title.classList.remove("turnEffect");
-        title.innerText = "Tic-Tac-Toe";
-    }
-
+    
+    // Display Winner
     const displayWinner = (playerName) => {
+        toggleFooterOpacity();
         resetTicTacToeHeader();
         let displayWinner = document.createElement("p");
         displayWinner.innerText = `The Winner is: ${playerName}!`
@@ -356,6 +356,13 @@ const gameModule = (() => {
         gameBoardContainer?.appendChild(displayWinner);
     }
 
+    // Reset 'Tic-Tac-Toe' Header To Original State
+    const resetTicTacToeHeader = () => {
+        title.classList.remove("turnEffect");
+        title.innerText = "Tic-Tac-Toe";
+    }
+
+    // Look for draws
     const checkForDraw = () => {
         let markedDivs = 0
         for (let i = 0; i < gameBoard.length; i++) {
@@ -363,10 +370,20 @@ const gameModule = (() => {
                 markedDivs++
             }
         }
-        if (markedDivs === gameBoard.length && !winnerFound) {
+        if (markedDivs === gameBoard.length) {
             resetTicTacToeHeader();
+            displayDraw();
             alert("It's a draw!");
         }
+    }
+    // Displays Draw
+    const displayDraw = () => {
+        toggleFooterOpacity();
+        resetTicTacToeHeader();
+        let displayDraw = document.createElement("p");
+        displayDraw.innerText = `It's a draw!!`
+        displayDraw.id = "displayDraw";
+        gameBoardContainer?.appendChild(displayDraw);
     }
 
     return {
