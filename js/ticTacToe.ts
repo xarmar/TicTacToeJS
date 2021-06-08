@@ -2,6 +2,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
 const title = document.querySelector("h1");
 const gameBoardContainer = document.querySelector("#gameBoardContainer");
+const footer = document.querySelector("#footer");
 var gameHasEnded: boolean;
 var winnerFound = false;
 var playerOne;
@@ -277,6 +278,7 @@ const gameModule = (() => {
         gameHasEnded = false;
         playerOne.ownTurn = true;
         playerTwo.ownTurn = false;
+        toggleFooterOpacity();
         gameBoardModule.initGameBoardDiv();
         gameBoardModule.initGameBoard();
    }
@@ -294,6 +296,7 @@ const gameModule = (() => {
         gameHasEnded = false;
         playerOne.ownTurn = true;
         playerTwo.ownTurn = false;
+        toggleFooterOpacity();
         gameModule.initAiOrPlayerDiv();
     }
 
@@ -320,11 +323,13 @@ const gameModule = (() => {
                     symbols.push(gameBoard[index]);
                 });
                 if(symbols.toString() === "X,X,X") {
+                    toggleFooterOpacity();
                     displayWinner(playerOne.name)
                     winnerFound = true;
                     gameHasEnded = true;
                 }
                 else if (symbols.toString() === "O,O,O") {
+                    toggleFooterOpacity();
                     displayWinner(playerTwo.name);
                     winnerFound = true;
                     gameHasEnded = true;
@@ -334,7 +339,9 @@ const gameModule = (() => {
             gameModule.showTurn();
         }
         }
-    
+    const toggleFooterOpacity = () => {
+        footer?.classList.toggle("opacity");
+    }
 
     const resetTicTacToeHeader = () => {
         title.classList.remove("turnEffect");
