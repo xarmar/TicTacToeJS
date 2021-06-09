@@ -17,11 +17,34 @@ type Player = {
 var playerOne:Player;
 var playerTwo:Player;
 
-// playerModule - playerFactory(), toggleTurns(), nameUnderFifteenChar
+// playerModule - playerFactory(), toggleTurns(), checks who's turn it is and check if nameUnderFifteenChar()
 const playerModule = (() => {
     const playerFactory = (name: string, number: number, symbol: string, ownTurn: boolean) => {
         return {name, number, symbol, ownTurn};
     };
+
+        // creates players with the playerFactory
+        const createPlayers = (playerOneName:string, playerTwoName:string) => {
+            // if its just AI
+            if (playerOneName && !playerTwoName) {
+                playerOne = playerModule.playerFactory(playerOneName, 1, "X", true);
+                playerTwo = playerModule.playerFactory("AI", 2, "O", false);
+                gameModule.deleteElementById("pickNamesDiv");
+                gameBoardModule.initGameBoardDiv();
+                gameBoardModule.initGameBoard();
+            }
+    
+            // if against human - create both players
+            if (playerOneName && playerTwoName) {
+                playerOne = playerModule.playerFactory(playerOneName, 1, "X", true);
+                playerTwo = playerModule.playerFactory(playerTwoName, 2, "O", false);
+                gameModule.deleteElementById("pickNamesDiv");
+                gameBoardModule.initGameBoardDiv();
+                gameBoardModule.initGameBoard();
+            }
+        }
+
+
     // toggles who's turn it is: Player1 or Player 2.
     const toggleTurns = () => {
         playerOne.ownTurn ? playerOne.ownTurn = false : playerOne.ownTurn = true;
@@ -45,11 +68,12 @@ const playerModule = (() => {
         return false
     }
     return {
-        playerFactory: playerFactory,
-        toggleTurns: toggleTurns,
-        isPlayerOneTurn : isPlayerOneTurn,
-        isPlayerTwoTurn: isPlayerTwoTurn,
-        nameUnderFifteenChar: nameUnderFifteenChar
+        playerFactory,
+        createPlayers,
+        toggleTurns,
+        isPlayerOneTurn,
+        isPlayerTwoTurn,
+        nameUnderFifteenChar
     }
 })();
 
@@ -74,7 +98,7 @@ const gameBoardModule = (() => {
         insertRestartButton();
     }
 
-    // inserts a restart button into the DOM that resets the game
+    // inserts two restart buttons into the DOM that resets the game
     const insertRestartButton = () => {
         const restartButtonDiv = document.createElement("div");
         restartButtonDiv.id = "restartButtonDiv";
@@ -133,11 +157,10 @@ const gameBoardModule = (() => {
         }
     }
     return {
-        gameBoard,
-        initGameBoardDiv: initGameBoardDiv,
-        initGameBoard: initGameBoard,
+        initGameBoardDiv,
+        initGameBoard,
         getGameBoard,
-        setSymbolForGameBoardIndex: setSymbolForGameBoardIndex
+        setSymbolForGameBoardIndex
         }
 })();
 
@@ -147,6 +170,7 @@ const gameModule = (() => {
 
     // Populates a new div that asks if user wants to play against AI or another human.
     const initAiOrPlayerDiv  = () => {
+        footer?.classList.remove("opacity");
         let aiOrPlayerDiv = document.createElement("div");
         aiOrPlayerDiv.id = "aiOrPlayerDiv";
         //  gives instructions to user
@@ -176,7 +200,7 @@ const gameModule = (() => {
 
     // validates user's choice in AiorPlayerDiv.
     const chosenGameMode = (e:any) => {
-        gameModule.deleteDiv("aiOrPlayerDiv");
+        gameModule.deleteElementById("aiOrPlayerDiv");
         let clickedButton = e.target.innerText;
         // if user picked AI adversary
         if (clickedButton === "AI \uD83E\uDD16") {
@@ -190,8 +214,8 @@ const gameModule = (() => {
     }
 
     // Deletes Divs
-    const deleteDiv = (divName: string) => {
-        let divToBeDeleted = document.querySelector(`#${divName}`);
+    const deleteElementById = (idName: string) => {
+        let divToBeDeleted = document.querySelector(`#${idName}`);
         divToBeDeleted?.remove();
     }
 
@@ -247,29 +271,10 @@ const gameModule = (() => {
                 }
             }
         });
-        createPlayers(playerOneName, playerTwoName);
+        playerModule.createPlayers(playerOneName, playerTwoName);
     }
 
-    // creates players by with the playerFactory in playerModule
-    const createPlayers = (playerOneName:string, playerTwoName:string) => {
-        // if its just AI
-        if (playerOneName && !playerTwoName) {
-            playerOne = playerModule.playerFactory(playerOneName, 1, "X", true);
-            playerTwo = playerModule.playerFactory("AI", 2, "O", false);
-            deleteDiv("pickNamesDiv");
-            gameBoardModule.initGameBoardDiv();
-            gameBoardModule.initGameBoard();
-        }
 
-        // if against human - create both players
-        if (playerOneName && playerTwoName) {
-            playerOne = playerModule.playerFactory(playerOneName, 1, "X", true);
-            playerTwo = playerModule.playerFactory(playerTwoName, 2, "O", false);
-            deleteDiv("pickNamesDiv");
-            gameBoardModule.initGameBoardDiv();
-            gameBoardModule.initGameBoard();
-        }
-    }
 
     // lets AI play a randomPlay
     const aiPlay = () => {
@@ -305,24 +310,19 @@ const gameModule = (() => {
         }
     }
 
-    // turns footer visible and invisible
-    const toggleFooterOpacity = () => {
-        footer?.classList.toggle("opacity");
-    }
-
     // resetGame: remove the child elements of gameBoardContainer from DOM, reset gameBoard and run initGameBoard.
     const resetGame = () => {
-        deleteDiv("gameBoard");
-        deleteDiv("displayWinner");
-        deleteDiv("displayDraw");
-        deleteDiv("restartButtonDiv");
+        deleteElementById("gameBoard");
+        deleteElementById("displayWinner");
+        deleteElementById("displayDraw");
+        deleteElementById("restartButtonDiv");
         for (let index = 0; index < gameBoard.length; index++) {
             gameBoardModule.setSymbolForGameBoardIndex(index, "");
         }
         gameHasEnded = false;
         playerOne.ownTurn = true;
         playerTwo.ownTurn = false;
-        toggleFooterOpacity();
+        footer?.classList.remove("opacity");
         gameBoardModule.initGameBoardDiv();
         gameBoardModule.initGameBoard();
    }
@@ -331,17 +331,16 @@ const gameModule = (() => {
     const fullReset = () => {
         title.innerText = "Tic-Tac-Toe";
         title.classList.remove("turnEffect");
-        deleteDiv("gameBoard");
-        deleteDiv("displayWinner");
-        deleteDiv("displayDraw");
-        deleteDiv("restartButtonDiv");
+        deleteElementById("gameBoard");
+        deleteElementById("displayWinner");
+        deleteElementById("displayDraw");
+        deleteElementById("restartButtonDiv");
         for (let index = 0; index < gameBoard.length; index++) {
             gameBoardModule.setSymbolForGameBoardIndex(index, "");
         }
         gameHasEnded = false;
         playerOne.ownTurn = true;
         playerTwo.ownTurn = false;
-        toggleFooterOpacity();
         gameModule.initAiOrPlayerDiv();
     }
 
@@ -386,7 +385,7 @@ const gameModule = (() => {
         if (document.querySelector("#displayWinner")) {
             return
         }
-        toggleFooterOpacity();
+        footer?.classList.add("opacity")
         resetTicTacToeHeader();
         let displayWinner = document.createElement("p");
         displayWinner.innerText = `The Winner is: ${playerName}!`
@@ -409,14 +408,15 @@ const gameModule = (() => {
             }
         }
         if (markedDivs === gameBoard.length) {
-            resetTicTacToeHeader();
             displayDraw();
         }
     }
     // Displays Draw
     const displayDraw = () => {
-        toggleFooterOpacity();
+        gameHasEnded = true;
         resetTicTacToeHeader();
+        footer?.classList.add("opacity");
+        title.classList.remove("turnEffect");
         let displayDraw = document.createElement("p");
         displayDraw.innerText = `It's a draw!!`
         displayDraw.id = "displayDraw";
@@ -424,16 +424,15 @@ const gameModule = (() => {
     }
 
     return {
-        resetGame : resetGame,
-        fullReset: fullReset,
-        checkForWinner: checkForWinner,
-        checkForDraw: checkForDraw,
-        initAiOrPlayerDiv: initAiOrPlayerDiv,
-        deleteDiv: deleteDiv,
-        createPlayers: createPlayers,
-        aiPlay: aiPlay,
-        initPickNamesDiv: initPickNamesDiv,
-        showTurn: showTurn
+        resetGame,
+        fullReset,
+        checkForWinner,
+        checkForDraw,
+        initAiOrPlayerDiv,
+        deleteElementById,
+        aiPlay,
+        initPickNamesDiv,
+        showTurn
     }
 })();
 
