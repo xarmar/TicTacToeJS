@@ -7,8 +7,15 @@ const footer = document.querySelector("#footer");
 // init variables
 var gameHasEnded: boolean;
 var winnerFound = false;
-var playerOne;
-var playerTwo;
+type Player = {
+    name: string;
+    number: number;
+    symbol: string;
+    ownTurn: boolean;
+};
+
+var playerOne:Player;
+var playerTwo:Player;
 
 // playerModule - playerFactory(), toggleTurns(), nameUnderFifteenChar
 const playerModule = (() => {
@@ -104,7 +111,7 @@ const gameBoardModule = (() => {
     }
 
     // Adds player's symbol to clicked div.
-    const addMark = (e) => {
+    const addMark = (e:any) => {
         if (!gameHasEnded) {
             let clickedSquareText = e.target.innerText;
             let clickedSquareIndex = e.target.id;
@@ -114,8 +121,9 @@ const gameBoardModule = (() => {
                     setSymbolForGameBoardIndex(clickedSquareIndex, playerOne.symbol);
                     playerModule.toggleTurns();
                     gameModule.checkForWinner();
+                    gameModule.aiPlay();
                 }
-                else if (!playerOne.ownTurn && playerTwo.ownTurn) {
+                else if (!playerOne.ownTurn && playerTwo.ownTurn && playerTwo.name !== "AI") {
                     e.target.textContent = playerTwo.symbol;
                     setSymbolForGameBoardIndex(clickedSquareIndex, playerTwo.symbol);
                     playerModule.toggleTurns();
@@ -167,7 +175,7 @@ const gameModule = (() => {
     }
 
     // validates user's choice in AiorPlayerDiv.
-    const chosenGameMode = (e) => {
+    const chosenGameMode = (e:any) => {
         gameModule.deleteDiv("aiOrPlayerDiv");
         let clickedButton = e.target.innerText;
         // if user picked AI adversary
@@ -234,7 +242,7 @@ const gameModule = (() => {
             }
             else {
                 playerTwoName = input.value;
-                if(!playerModule.nameUnderFifteenChar(playerTwoName)) {
+                if(!playerModule.nameUnderFifteenChar(playerTwoName) || playerTwoName === "AI") {
                     playerOneName = undefined;
                 }
             }
@@ -243,10 +251,14 @@ const gameModule = (() => {
     }
 
     // creates players by with the playerFactory in playerModule
-    const createPlayers = (playerOneName, playerTwoName) => {
+    const createPlayers = (playerOneName:string, playerTwoName:string) => {
         // if its just AI
         if (playerOneName && !playerTwoName) {
-            let playerOne = playerModule.playerFactory(playerOneName, 1, "X", true);
+            playerOne = playerModule.playerFactory(playerOneName, 1, "X", true);
+            playerTwo = playerModule.playerFactory("AI", 2, "O", false);
+            deleteDiv("pickNamesDiv");
+            gameBoardModule.initGameBoardDiv();
+            gameBoardModule.initGameBoard();
         }
 
         // if against human - create both players
@@ -256,6 +268,30 @@ const gameModule = (() => {
             deleteDiv("pickNamesDiv");
             gameBoardModule.initGameBoardDiv();
             gameBoardModule.initGameBoard();
+        }
+    }
+
+    // lets AI play a randomPlay
+    const aiPlay = () => {
+        if(!gameHasEnded && playerTwo.name === "AI") {
+            let playableSquares:number[] = [];
+            let gameBoard = gameBoardModule.getGameBoard();
+            // check squares that AI can mark down
+            for (let i = 0; i < gameBoard.length; i++) {
+                if(gameBoard[i] === "") {
+                    playableSquares.push(i);
+                }
+            }
+            let randomNumber = Math.floor(Math.random() * playableSquares.length);
+            let randomIndex = playableSquares[randomNumber];
+            // play randomly chosen index
+            gameBoardModule.setSymbolForGameBoardIndex(randomIndex, "O");
+            let targetSquare = document.getElementById(`${randomIndex}`);
+            targetSquare.textContent = "O";
+            checkForWinner();
+            checkForDraw();
+            playerModule.toggleTurns();
+            showTurn();
         }
     }
 
@@ -347,7 +383,10 @@ const gameModule = (() => {
         }
     
     // Display Winner
-    const displayWinner = (playerName) => {
+    const displayWinner = (playerName:string) => {
+        if (document.querySelector("#displayWinner")) {
+            return
+        }
         toggleFooterOpacity();
         resetTicTacToeHeader();
         let displayWinner = document.createElement("p");
@@ -394,6 +433,7 @@ const gameModule = (() => {
         initAiOrPlayerDiv: initAiOrPlayerDiv,
         deleteDiv: deleteDiv,
         createPlayers: createPlayers,
+        aiPlay: aiPlay,
         initPickNamesDiv: initPickNamesDiv,
         showTurn: showTurn
     }
