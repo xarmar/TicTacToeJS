@@ -289,7 +289,6 @@ const gameModule = (() => {
             let targetSquare = document.getElementById(`${randomIndex}`);
             targetSquare.textContent = "O";
             checkForWinner();
-            checkForDraw();
             playerModule.toggleTurns();
             showTurn();
         }
@@ -412,7 +411,6 @@ const gameModule = (() => {
         if (markedDivs === gameBoard.length) {
             resetTicTacToeHeader();
             displayDraw();
-            alert("It's a draw!");
         }
     }
     // Displays Draw
